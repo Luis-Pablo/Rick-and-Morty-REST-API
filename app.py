@@ -27,6 +27,15 @@ def create_user():
 
         return jsonify ({'message':'Usuario guardados', 'user' : user.serialize()}), 200
  
+ 
+@app.route("/users", methods=["GET"])
+def get_users():
+    users = User.query.all()
+    result = []
+    for user in users:
+        result.append(user.serialize())
+    return jsonify(result) 
+
 
 @app.route("/users/<int:id>", methods=["PUT", "DELETE"])
 def update_user(id):
@@ -47,11 +56,6 @@ def update_user(id):
         return jsonify({'message':'Usuario actualizado', 'user' : user.serialize()}), 200
     
 
-        
-
-
-
-
 # CHARACTER
 
 @app.route("/characters", methods=["POST"])
@@ -71,7 +75,6 @@ def create_character():
     db.session.commit()
 
     return jsonify({'message':'Personaje creado exitosamente ', 'character_name': character.serialize()}), 200
-
 
 
 @app.route("/characters", methods=["GET"])
@@ -113,7 +116,6 @@ def update_characters(id):
 
 # LOCATION
 
-
 @app.route("/location", methods=["POST"])
 def create_location():
     location = Location()
@@ -126,7 +128,6 @@ def create_location():
     db.session.commit()
 
     return jsonify({'message':'Ubicación creada exitosamente ', 'location': location.serialize()}), 200
-
 
 
 @app.route("/location", methods=["GET"])
@@ -164,14 +165,7 @@ def update_location(id):
     return jsonify("location no encontrada"), 418
 
 
-
-
-
-
-
 # EPISODES
-
-
 
 @app.route("/episodes", methods=["POST"])
 def create_episodes():
@@ -185,7 +179,6 @@ def create_episodes():
     db.session.commit()
 
     return jsonify({'message':'Episodio creado exitosamente ', 'episodes': episodes.serialize()}), 200
-
 
 
 @app.route("/episodes", methods=["GET"])
@@ -223,7 +216,6 @@ def update_episodes(id):
     return jsonify("Episodio no encontrado"), 418
 
 
-
 # FAVORITES
 
 @app.route("/favorites", methods=["POST"])
@@ -232,15 +224,11 @@ def create_favorite():
     favorite.username = request.json.get("username")
     favorite.name_character = request.json.get("name_character")
     
-    favorite_name = Favorite.query.filter_by(name_character = favorite.name_character).first()
-    
-    if favorite_name:
-        return jsonify({'message':'Favorito ya existe ', 'favorite': favorite.serialize()})
-    else:       
-        db.session.add(favorite)
-        db.session.commit()
+    db.session.add(favorite)
+    db.session.commit()
 
-        return jsonify({'message':'Favorito guardado', 'favorite': favorite.serialize()}), 200
+    return jsonify({'message':'Favorito guardado', 'favorite': favorite.serialize()}), 200
+
 
 @app.route("/favorites", methods=["GET"])
 def get_favorites():
@@ -251,26 +239,23 @@ def get_favorites():
     return jsonify(result)
 
 
-
 @app.route("/favorites/<int:id>", methods=["PUT", "DELETE"])
 def update_favorite(id):
     favorite = Favorite.query.get(id)
-    
-    if request.method == "DELETE":
-        db.session.delete(favorite)
-        db.session.commit()
+    if favorite is not None:
+        if request.method == "DELETE":
+            db.session.delete(favorite)
+            db.session.commit()
 
-        return jsonify({'message':'Favorito eliminado', 'favorite': favorite.serialize()}), 200
-    
-    if request.method == "PUT":
-        favorite.name_character = request.json.get("name_character")
-        db.session.commit()
-        return jsonify({'message':'Favorito actualizado', 'favorite': favorite.serialize()}), 200
+            return jsonify({'message':'Favorito eliminado', 'favorite': favorite.serialize()}), 200
+        
+        if request.method == "PUT":
+            favorite.name_character = request.json.get("name_character")
+            db.session.commit()
+            return jsonify({'message':'Favorito actualizado', 'favorite': favorite.serialize()}), 200
                        
-    
+    return jsonify("Favorito no encontrado")
  
-                        
-    
 with app.app_context():
     db.create_all()
 
