@@ -121,8 +121,6 @@ def create_location():
     location.type = request.json.get("type")
     location.dimension = request.json.get("dimension")
     location.residents = request.json.get("residents")
-   
-    
 
     db.session.add(location)
     db.session.commit()
@@ -172,6 +170,58 @@ def update_location(id):
 
 
 # EPISODES
+
+
+
+@app.route("/episodes", methods=["POST"])
+def create_episodes():
+    episodes = Episode()
+    episodes.name = request.json.get("name")
+    episodes.air_date = request.json.get("air_date")
+    episodes.episode = request.json.get("episode")
+    episodes.character = request.json.get("character")
+
+    db.session.add(episodes)
+    db.session.commit()
+
+    return jsonify({'message':'Episodio creado exitosamente ', 'episodes': episodes.serialize()}), 200
+
+
+
+@app.route("/episodes", methods=["GET"])
+def get_episodes():
+    episodes = Episode.query.all()
+    result = []
+    for episode in episodes:
+        result.append(episode.serialize())
+    return jsonify(result)
+
+
+@app.route("/episodes/<int:id>", methods=["PUT", "DELETE"])
+def update_episodes(id):
+    episodes = Episode.query.get(id)
+    if episodes is not None:
+        if request.method == "DELETE":
+            db.session.delete(episodes)
+            db.session.commit()
+
+            return jsonify({'message':'Episodio eliminado', 'episodes': episodes.serialize()}), 200
+        else:            
+            episodes.name = request.json.get("name")
+            episodes.air_date = request.json.get("air_date")
+            episodes.episode = request.json.get("episode")
+            episodes.character = request.json.get("character")
+        
+            
+
+            db.session.add(episodes)
+            db.session.commit()
+
+            
+            return jsonify({'message':'Episodio actualizado', 'episodes': episodes.serialize()}), 200
+    
+    return jsonify("Episodio no encontrado"), 418
+
 
 
 # FAVORITES
