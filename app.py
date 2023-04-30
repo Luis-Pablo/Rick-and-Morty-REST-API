@@ -91,18 +91,87 @@ def update_characters(id):
             db.session.delete(character)
             db.session.commit()
 
-            return jsonify("Personaje Eliminado"), 204
-        else:
-            character.patronus = request.json.get("patronus")
+            return jsonify({'message':'Personaje eliminado', 'character': character.serialize()}), 200
+        else:            
+            character.name = request.json.get("name")
+            character.status = request.json.get("status")
+            character.species = request.json.get("species")
+            character.type = request.json.get("type")
+            character.gender = request.json.get("gender")
+            character.origin = request.json.get("origin")
+            character.location = request.json.get("location")
+            character.episode = request.json.get("episode")
             
+
+            db.session.add(character)
             db.session.commit()
             
-            return jsonify("Personaje actualizado"), 200
+            return jsonify({'message':'Personaje actualizado', 'character': character.serialize()}), 200
     
     return jsonify("Personaje no encontrado"), 418
 
 
+# LOCATION
 
+
+@app.route("/location", methods=["POST"])
+def create_location():
+    location = Location()
+    location.name = request.json.get("name")
+    location.type = request.json.get("type")
+    location.dimension = request.json.get("dimension")
+    location.residents = request.json.get("residents")
+   
+    
+
+    db.session.add(location)
+    db.session.commit()
+
+    return jsonify({'message':'Ubicación creada exitosamente ', 'location': location.serialize()}), 200
+
+
+
+@app.route("/location", methods=["GET"])
+def get_location():
+    locations = Location.query.all()
+    result = []
+    for location in locations:
+        result.append(location.serialize())
+    return jsonify(result)
+
+
+@app.route("/location/<int:id>", methods=["PUT", "DELETE"])
+def update_location(id):
+    location = Location.query.get(id)
+    if location is not None:
+        if request.method == "DELETE":
+            db.session.delete(location)
+            db.session.commit()
+
+            return jsonify({'message':'Ubicación eliminada', 'location': location.serialize()}), 200
+        else:            
+            location.name = request.json.get("name")
+            location.type = request.json.get("type")
+            location.dimension = request.json.get("dimension")
+            location.residents = request.json.get("residents")
+        
+            
+
+            db.session.add(location)
+            db.session.commit()
+
+            
+            return jsonify({'message':'Ubicación actualizada', 'location': location.serialize()}), 200
+    
+    return jsonify("location no encontrada"), 418
+
+
+
+
+
+
+
+# EPISODES
 
 
 # FAVORITES
